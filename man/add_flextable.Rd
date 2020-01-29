@@ -24,6 +24,7 @@ a document object
 Add a flextable or mytable object into a document object
 }
 \examples{
+\donttest{
 require(rrtable)
 require(moonBook)
 require(officer)
@@ -36,6 +37,6 @@ doc=read_docx()
 doc \%>\% add_text(title=title) \%>\%
         add_flextable(ftable) \%>\%
         add_text(title=title2) \%>\%
-        add_flextable(ft) \%>\%
-        print(target=paste0(tempdir(),"/","mytable.docx"))
+        add_flextable(ft)
+}
 }

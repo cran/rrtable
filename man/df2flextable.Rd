@@ -4,12 +4,25 @@
 \alias{df2flextable}
 \title{Convert data.frame to flextable}
 \usage{
-df2flextable(df, vanilla = FALSE, fontname = NULL, fontsize = 10,
-  add.rownames = FALSE, even_header = "transparent",
-  odd_header = "#5B7778", even_body = "#EFEFEF", odd_body = "transparent",
-  vlines = TRUE, colorheader = FALSE, digits = 2,
-  align_header = "center", align_body = "right", NA2space = FALSE,
-  pcol = NULL, ...)
+df2flextable(
+  df,
+  vanilla = FALSE,
+  fontname = NULL,
+  fontsize = 12,
+  add.rownames = FALSE,
+  even_header = "transparent",
+  odd_header = "#5B7778",
+  even_body = "#EFEFEF",
+  odd_body = "transparent",
+  vlines = TRUE,
+  colorheader = FALSE,
+  digits = 2,
+  align_header = "center",
+  align_body = "right",
+  NA2space = TRUE,
+  pcol = NULL,
+  ...
+)
 }
 \arguments{
 \item{df}{A data.frame}
@@ -53,8 +66,10 @@ Convert data.frame to flextable
 require(flextable)
 require(officer)
 df2flextable(head(iris),vanilla=TRUE,colorheader=TRUE)
+\donttest{
 df2flextable(head(iris),vanilla=TRUE,digits=c(1,2,3,4))
 df2flextable(head(iris),vanilla=FALSE)
 df2flextable(head(iris),vanilla=FALSE,vlines=FALSE,fontsize=14)
 df2flextable(head(mtcars))
+}
 }

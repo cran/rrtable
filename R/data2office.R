@@ -19,10 +19,15 @@
 #' @export
 data2office=function(data,
                      preprocessing="",
-                     path=NULL,filename="Report",format="pptx",width=7,height=5,units="in",
+                     path=".",filename="Report",format="pptx",width=7,height=5,units="in",
                      res=300,rawDataName=NULL,rawDataFile="rawData.RDS",vanilla=FALSE,echo=FALSE,
                      landscape=FALSE,
                      showself=FALSE){
+
+    # path=".";filename="Report";format="pptx";width=7;height=5;units="in"
+    # res=300;rawDataName=NULL;rawDataFile="rawData.RDS";vanilla=FALSE;echo=FALSE
+    # landscape=FALSE;
+    # showself=FALSE
 
     mode=0
     owd=getwd()
@@ -41,8 +46,11 @@ data2office=function(data,
         rawData=readRDS(rawDataFile)
         assign(rawDataName,rawData)
     }
-    if(preprocessing!="") eval(parse(text=preprocessing))
 
+    if(preprocessing!="") {
+
+        eval(parse(text=preprocessing))
+    }
     data$type=tolower(data$type)
 
     if(ncol(data)==3) {
@@ -91,6 +99,15 @@ data2office=function(data,
         }
 
         if(shortdata==0){
+            if(class(mydoc)=="rpptx"){
+            if(data$type[i]==""){
+               if(i<nrow(data)){
+                   if(data$type[i+1]!="") next
+               } else{
+                   next
+               }
+            }
+            }
             echo1=echo|getCodeOption(data$option[i])
             eval=getCodeOption(data$option[i],"eval")
             landscape1=landscape|getCodeOption(data$option[i],"landscape")
@@ -98,11 +115,19 @@ data2office=function(data,
                 echo1=TRUE
                 eval=TRUE
             }
-            if(data$type[i]!="text") {
-                temp=""
-            } else{
-                temp=data$text[i]
+             if(data$type[i] %in% c("text","")) {
+                 temp=data$text[i]
+             } else{
+                 temp=""
+             }
+            if(class(mydoc)=="rpptx"){
+                if(data$type[i] %in% c("header2","")){
+                    if(!is.na(data$type[i+1])){
+                       if(data$type[i+1]=="") temp=data$text[i+1]
+                    }
+                }
             }
+            # temp=data$text[i]
             mydoc=add_text(mydoc,title=data$title[i],text=temp,
                            code=data$code[i],echo=echo1,eval=eval,
                            landscape=landscape1)
@@ -121,14 +146,25 @@ data2office=function(data,
                 tempcode=data$code[i]
             }
             mydoc=add_text(mydoc,title=data$title[i],text=temp,
-                           code=tempcode,echo=echo1,eval=eval,
+                           code=tempcode,preprocessing=preprocessing,echo=echo1,eval=eval,
                            landscape=landscape1)
         }
 
 
         if(data$type[i]=="rcode") eval(parse(text=data$code[i]))
         if(data$type[i]=="data"){
-            ft=df2flextable2(eval(parse(text=data$code[i])),vanilla=vanilla)
+            # ft=df2flextable2(eval(parse(text=data$code[i])),vanilla=vanilla)
+
+            ft=eval(parse(text=paste0("df2flextable2(",data$code[i],",vanilla=",vanilla,")")))
+            mydoc=add_flextable(mydoc,ft,code=data$code[i],echo=echo1,landscape = landscape1)
+        } else if(data$type[i]=="ztable"){
+            #tempcode=set_argument(data$code[i],argument="vanilla",value=vanilla)
+            ft=eval(parse(text=data$code[i]))
+            ft<-ztable2flextable(ft)
+            mydoc=add_flextable(mydoc,ft,code=data$code[i],echo=echo1,landscape = landscape1)
+        } else if(data$type[i]=="flextable"){
+
+            ft=eval(parse(text=data$code[i]))
             mydoc=add_flextable(mydoc,ft,code=data$code[i],echo=echo1,landscape = landscape1)
         } else if(data$type[i]=="table"){
             #tempcode=set_argument(data$code[i],argument="vanilla",value=vanilla)
@@ -142,21 +178,14 @@ data2office=function(data,
             ft=mytable2flextable(res,vanilla=vanilla)
             mydoc=add_flextable(mydoc,ft,code=data$code[i],echo=echo1,landscape = landscape1)
         } else if(data$type[i]=="ggplot"){
-            mydoc=add_ggplot(mydoc,code=data$code[i],top=ifelse(echo1,2,1.5))
-        }else if(data$type[i]=="2ggplots"){
-
-            codes=unlist(strsplit(data$code[i],"\n"))
-            # codes=unlist(strsplit(sampleData2$code[8],"\n"))
-            gg1=codes[1]
-            gg2=codes[2]
-            mydoc=add_2ggplots(mydoc,plot1=gg1,plot2=gg2,top=ifelse(echo1,2,1.5))
+            mydoc=add_ggplot(mydoc,code=data$code[i],preprocessing=preprocessing,top=ifelse(echo1,2,1.5))
         } else if(data$type[i]=="plot"){
-            mydoc<-add_plot(mydoc,data$code[i],top=ifelse(echo1,2,1.5))
+            mydoc<-add_plot(mydoc,data$code[i],preprocessing=preprocessing,top=ifelse(echo1,2,1.5))
 
-        } else if(data$type[i]=="2plots"){
+        } else if(data$type[i] %in% c("2plots","2ggplots")){
 
             codes=unlist(strsplit(data$code[i],"\n"))
-            mydoc=add_2plots(mydoc,plotstring1=codes[1],plotstring2=codes[2],top=ifelse(echo1,2,1.5))
+            mydoc=add_2plots(mydoc,plotstring1=codes[1],plotstring2=codes[2],preprocessing=preprocessing,top=ifelse(echo1,2,1.5))
 
         } else if(data$type[i] %in% c("PNG","png")){
 
@@ -184,6 +213,7 @@ data2office=function(data,
 
     mydoc %>% print(target=target)
 
+    # mydoc %>% print(target=".")
     setwd(owd)
 
     path=str_replace(path,"//","/")
@@ -198,7 +228,7 @@ data2office=function(data,
 #' library(rrtable)
 #' library(moonBook)
 #' library(ggplot2)
-#' data2pptx(sampleData2)
+#' data2pptx(sampleData2,echo=TRUE)
 #' }
 data2pptx=function(...){
     data2office(...)
@@ -212,7 +242,7 @@ data2pptx=function(...){
 #' library(rrtable)
 #' library(moonBook)
 #' library(ggplot2)
-#' data2docx(sampleData2)
+#' data2docx(sampleData2,echo=TRUE)
 #' }
 data2docx=function(...){
     data2office(...,format="docx")

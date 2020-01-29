@@ -4,12 +4,18 @@
 \alias{add_plot}
 \title{Add plot into a document object}
 \usage{
-add_plot(mydoc, plotstring, top = 2)
+add_plot(mydoc, plotstring, preprocessing = "", width = 6, height = 6, top = 2)
 }
 \arguments{
 \item{mydoc}{A document object}
 
 \item{plotstring}{String of an R code encoding a plot}
+
+\item{preprocessing}{preprocessing}
+
+\item{width}{width of plot}
+
+\item{height}{height of plot}
 
 \item{top}{top position of plot}
 }
@@ -25,4 +31,5 @@ require(officer)
 require(rvg)
 require(magrittr)
 read_pptx() \%>\% add_text(title="Plot") \%>\% add_plot("plot(iris)")
+read_docx() \%>\% add_text(title="Plot") \%>\% add_plot("plot(iris)")
 }

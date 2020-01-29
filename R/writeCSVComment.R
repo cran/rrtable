@@ -17,3 +17,14 @@ writeCSVComment=function(data,file,metadata="",comment="#"){
     # append the data.frame
     write.table(data, file = file, append = T, row.names = F, sep = ',',col.names=TRUE)
 }
+
+#' Read a csv file with comment
+#' @param file A path for destination file
+#' @export
+readCSVComment=function(file){
+    data=readr::read_csv(file,comment="#")
+    data[is.na(data)]=""
+    data
+}
+
+

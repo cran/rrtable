@@ -19,6 +19,7 @@ mytable2flextable(result, vanilla = TRUE, fontname = NULL, fontsize = 10)
 Convert mytable object to flextable
 }
 \examples{
+\donttest{
 require(moonBook)
 require(flextable)
 require(officer)
@@ -28,4 +29,5 @@ mytable2flextable(result,vanilla=FALSE)
 result=mytable(Dx~.,data=acs)
 mytable2flextable(result)
 mytable2flextable(result,vanilla=FALSE)
+}
 }

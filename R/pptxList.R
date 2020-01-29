@@ -54,7 +54,8 @@ pptxList<-function(input,output,session,data=reactive(""),preprocessing=reactive
           }
      })
      observe({
-          if(preprocessing()!=""){
+             temp=preprocessing
+          if(length(temp)!=0){
                updateTextAreaInput(session,"preprocessing",value=preprocessing())
           }
      })
@@ -62,10 +63,29 @@ pptxList<-function(input,output,session,data=reactive(""),preprocessing=reactive
      pptdf=reactive({
 
           input$pptfile
-          input$resetPPT
 
-          df<-data.frame(type=savedPPT$type,title=savedPPT$title,code=savedPPT$code,
+
+          # defaultmode=0
+          #
+          # if(length(savedPPT$type)==0){
+          #       defaultmode=1
+          #       savedPPT$type="plot"
+          #       savePPT$title="title"
+          #       savePPT$code="plot(1:10)"
+          # }
+
+          df<-data.frame(type=savedPPT$type,
+                         title=savedPPT$title,
+                         code=savedPPT$code,
                          stringsAsFactors = FALSE)
+
+          # if(defaultmode==1){
+          #         savedPPT$type=c()
+          #         savedPPT$title=c()
+          #         savedPPT$code=c()
+          #         df=df[-1,]
+          #         defaultmode=0
+          # }
           df
      })
 
@@ -73,6 +93,7 @@ pptxList<-function(input,output,session,data=reactive(""),preprocessing=reactive
           if(!is.null(input$pptfile)){
 
                mypptlist<-readr::read_csv(input$pptfile$datapath,comment="#")
+               mypptlist[is.na(mypptlist)]=""
                savedPPT$type=mypptlist$type
                savedPPT$title=mypptlist$title
                savedPPT$code=mypptlist$code
@@ -102,15 +123,11 @@ pptxList<-function(input,output,session,data=reactive(""),preprocessing=reactive
                fluidRow(
                     column(4,
                            h4("Upload PPTList(*.csv)"),
-                           fileInput(ns("pptfile"),NA)  #"Upload PPTList(*.csv)"
+                           fileInput(ns("pptfile"),NULL)  #"Upload PPTList(*.csv)"
                     ),
                     column(3,
                            h4("Load sampleData "),
                            actionButton(ns("loadSample"),"load sampleData")
-                    ),
-                    column(5,
-                           h4("Reset PPT List "),
-                           actionButton(ns("ResetPPT"),"reset PPT List")
                     )
                ),
 
@@ -129,8 +146,23 @@ pptxList<-function(input,output,session,data=reactive(""),preprocessing=reactive
                if(count>0) numericInput3(ns("plotHeight"),"plotHeight",value=5,step=0.5,width=70),
                if(count>0) radioButtons3(ns('plotformat'), 'Format As', c('PNG', 'SVG','PDF'),
                                          inline = TRUE,selected='PNG'),
-
-               if(count==0) p("There is no saved data.")
+               hr()
+               # ,if(count>0) h4("Select Slide Numbers"),
+               # if(count>0) fluidRow(
+               #     column(4,
+               #            chooserInput(ns("pptchooser"), "All", "Selected",1:count, c(),
+               #                         size = count, multiple = TRUE,width=100)),
+               #     column(8,
+               #            h4("With Selected"),
+               #            actionButton(ns("deleteRow"),"Delete Selected",width=150),
+               #            actionButton(ns("deleteRow2"),"Delete Not Selected",width=150),
+               #            hr(),
+               #            downloadButton(ns("savePPTxList2"),"download as csv"),
+               #            downloadButton(ns("downloadPPTxList2"),"download as PPTx"),
+               #            downloadButton(ns("downloadPPTxListWord2"),"download as Word")
+               #     )
+               # ),
+               # if(count==0) p("There is no saved data.")
                # if(count>0) hr(),
                # if(count>0) actionButton(ns("showPPTList"),"show/hide saved List")
                # ,
@@ -142,6 +174,49 @@ pptxList<-function(input,output,session,data=reactive(""),preprocessing=reactive
 
           )
      })
+
+
+     observeEvent(input$deleteRow,{
+         selected=input$pptchooser$right
+         selected=as.numeric(selected)
+
+         savedPPT$type=savedPPT$type[-selected]
+         savedPPT$title=savedPPT$title[-selected]
+         savedPPT$code=savedPPT$code[-selected]
+     })
+
+
+     # observeEvent(input$deleteRow2,{
+     #     selected=input$pptchooser$left
+     #     selected=as.numeric(selected)
+     #
+     #     savedPPT$type=savedPPT$type[-selected]
+     #     savedPPT$title=savedPPT$title[-selected]
+     #     savedPPT$code=savedPPT$code[-selected]
+     # })
+     #
+     # output$savePPTxList2 = downloadHandler(
+     #     filename="PPTxList.csv",
+     #     content=function(file){
+     #
+     #         # temporarily switch to the temp dir, in case you do not have write
+     #         # permission to the current working directory
+     #         owd <- setwd(tempdir())
+     #         on.exit(setwd(owd))
+     #
+     #         selected=input$pptchooser$right
+     #         selected=as.numeric(selected)
+     #
+     #         data<-data.frame(type=savedPPT$type[selected],title=savedPPT$title[selected],code=savedPPT$code[selected],
+     #                          stringsAsFactors = FALSE)
+     #         writeCSVComment(data,file=file,metadata=input$preprocessing)
+     #
+     #     },
+     #     contentType="text/csv"
+     # )
+
+
+
 
      # observeEvent(input$showPPTList,{
      #     updateCheckboxInput(session,"showList",value=!input$showList)
@@ -246,30 +321,34 @@ pptxList<-function(input,output,session,data=reactive(""),preprocessing=reactive
      # })
 
 
+     # observeEvent(input$ResetPPT,{
+     #
+     #         savedPPT$type=c()
+     #         savedPPT$title=c()
+     #         savedPPT$code=c()
+     #
+     #         updateTextAreaInput(session,"preprocessing",value="")
+     #         # pptdf2<-callModule(editableDT,"PPTxListTable",data=reactive(pptdf()))
+     #
+     # })
 
+     loadSample=function(){
+             savedPPT$type=rrtable::sampleData2$type
+             savedPPT$title=rrtable::sampleData2$title
+             savedPPT$code=rrtable::sampleData2$code
 
-     observeEvent(input$ResetPPT,{
-
-          savedPPT$type=c()
-          savedPPT$title=c()
-          savedPPT$code=c()
-
-          updateTextAreaInput(session,"preprocessing",value="")
-
-     })
+             updateTextAreaInput(session,"preprocessing",value="")
+     }
 
      observeEvent(input$loadSample,{
 
-         savedPPT$type=rrtable::sampleData2$type
-         savedPPT$title=rrtable::sampleData2$title
-         savedPPT$code=rrtable::sampleData2$code
-
-         updateTextAreaInput(session,"preprocessing",value="")
+         loadSample()
 
      })
 
 
      pptdf2=callModule(editableDT,"PPTxListTable",data=reactive(pptdf()))
+
 
 
      output$downloadPPTxHTML<- downloadHandler(
@@ -324,6 +403,29 @@ pptxList<-function(input,output,session,data=reactive(""),preprocessing=reactive
           contentType="application/vnd-ms-powerpoint"
      )
 
+     # output$downloadPPTxList2=downloadHandler(
+     #     filename="report.pptx",
+     #     content=function(file){
+     #
+     #         # temporarily switch to the temp dir, in case you do not have write
+     #         # permission to the current working directory
+     #         owd <- setwd(tempdir())
+     #         on.exit(setwd(owd))
+     #
+     #         selected=input$pptchooser$right
+     #         selected=as.numeric(selected)
+     #
+     #         data<-data.frame(type=savedPPT$type[selected],title=savedPPT$title[selected],code=savedPPT$code[selected],stringsAsFactors = FALSE)
+     #
+     #         data2pptx(data,
+     #                   preprocessing=input$preprocessing,
+     #                   filename=file,width=input$width,height=input$height,units=input$units,res=input$res,echo=input$showCode)
+     #
+     #     },
+     #     contentType="application/vnd-ms-powerpoint"
+     # )
+     #
+
 
 
      output$downloadPPTxListWord=downloadHandler(
@@ -344,6 +446,28 @@ pptxList<-function(input,output,session,data=reactive(""),preprocessing=reactive
           },
           contentType="application/vnd-ms-word"
      )
+
+     # output$downloadPPTxListWord2=downloadHandler(
+     #     filename="report.docx",
+     #     content=function(file){
+     #
+     #         owd <- setwd(tempdir())
+     #         on.exit(setwd(owd))
+     #
+     #         selected=input$pptchooser$right
+     #         selected=as.numeric(selected)
+     #
+     #         data<-data.frame(type=savedPPT$type[selected],title=savedPPT$title[selected],code=savedPPT$code[selected],stringsAsFactors = FALSE)
+     #
+     #         data2docx(data,
+     #                   preprocessing=input$preprocessing,
+     #                   filename=file,width=input$plotWidth,height=input$plotHeight,
+     #                   units=input$plotUnit,res=input$plotRes,echo=input$showCode)
+     #
+     #
+     #     },
+     #     contentType="application/vnd-ms-word"
+     # )
 
 
 
@@ -379,11 +503,14 @@ pptxList<-function(input,output,session,data=reactive(""),preprocessing=reactive
      )
 
      pptdf3<-reactive({
+
+
           result<-NULL
-          result<-pptdf2()
+          try(result<-pptdf2())
           if(input$preprocessing!="") {
                attr(result,"preprocessing")=input$preprocessing
           }
+          # str(pptdf2())
           result
      })
 

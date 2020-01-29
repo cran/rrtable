@@ -4,9 +4,20 @@
 \alias{data2plotzip}
 \title{Make zipped plot file with a data.frame}
 \usage{
-data2plotzip(data, path = NULL, filename = "Plot.zip", format = "PNG",
-  width = 8, height = 6, units = "in", res = 300, start = 0,
-  preprocessing = "", rawDataName = NULL, rawDataFile = "rawData.RDS")
+data2plotzip(
+  data,
+  path = ".",
+  filename = "Plot.zip",
+  format = "PNG",
+  width = 8,
+  height = 6,
+  units = "in",
+  res = 300,
+  start = 0,
+  preprocessing = "",
+  rawDataName = NULL,
+  rawDataFile = "rawData.RDS"
+)
 }
 \arguments{
 \item{data}{A data.frame}
@@ -37,9 +48,11 @@ data2plotzip(data, path = NULL, filename = "Plot.zip", format = "PNG",
 Make zipped plot file with a data.frame
 }
 \examples{
+\donttest{
 library(moonBook)
 library(ztable)
 library(rrtable)
 library(ggplot2)
 data2plotzip(sampleData2,path="tmp")
+}
 }

@@ -19,5 +19,5 @@ Rcode2flextable(result, preprocessing = "", format = "pptx", eval = TRUE)
 Make a flextable object with character strings encoding R code
 }
 \examples{
-Rcode2flextable("str(mtcars)\\nsummary(mtcars)",eval=FALSE)
+Rcode2flextable("str(mtcars)\nsummary(mtcars)",eval=FALSE)
 }
