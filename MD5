@@ -1,8 +1,8 @@
-5102c13864a52795d1f6115e39d11629 *DESCRIPTION
+ad679b8110c6ce6ed92e50aa7bd8a239 *DESCRIPTION
 355993238cb27be4a21b476f34b27816 *NAMESPACE
-3d077d08b5b31e57d50a725bb24a2692 *NEWS.md
+3c0a5b8aec78fe951771367d759add26 *NEWS.md
 3f60a2231515afaf233ee77e87ab711d *R/add_2ggplots.R
-fe1d8f6d3eb2db4b3ceb1b36f439c0f1 *R/add_2plots.R
+1e9b070349be128453ff53e770a43d90 *R/add_2plots.R
 175ee95ffc093ed6b328b757373a97ab *R/add_Rcode.R
 e842078804a97586d20fc2b734427662 *R/add_flextable.R
 345338bc5c5f323c4e436879625aec24 *R/add_ggplot.R
@@ -16,9 +16,9 @@ b248a587e2ea03ca032081d317b28793 *R/data2plotzip.R
 36e452e62d02f32772bda0b7caf83685 *R/df2flextable.R
 c0cd92f5db684136dabb190152d6fb80 *R/exportCSV.R
 e511b4e42db2d4856b9584ce2b66dc17 *R/file2pdf.R
-245e4b6d9d71862b3ee1ea2d1b9e469b *R/flextable2ztable.R
+6616aee190651aec1700aef5b10edf3c *R/flextable2ztable.R
 fd240e2eb0d00ae265f5f74f36186583 *R/mytable2flextable.R
-0cb3d6939086c73fe20cd8a9ff9b8a2c *R/plot2pptx.R
+13d9fa9e7441cd20a6aa0ed1b77cf181 *R/plot2pptx.R
 423fbfd09b525407d9f5dae1676ec7ac *R/pptxList.R
 2a9504019da7ed3eb4fec98f77131022 *R/pptxListInput.R
 e46a1403656f57a6a10919b129095c0a *R/readComment.R
@@ -36,7 +36,7 @@ ecd3c2de450343babd0f72d97d79d44f *data/sampleData3.rda
 c753a06a9546a98cbe1012868f0e14f8 *inst/doc/Update.html
 2f0183bbbbad8596d1a7a61dd3eb6365 *inst/doc/rrtable.R
 7a6ea8c90967e5bc7b1421cb64a3ddfb *inst/doc/rrtable.Rmd
-421f6545525d66d7e5af5dbb22b7c884 *inst/doc/rrtable.html
+6b6b39f7aebd0870baad726cec10faff *inst/doc/rrtable.html
 5c5738cfb9d74c8bdc5879ef434859f6 *inst/doc_examples/Report.pptx
 587ee7e686b621efc219d09a093f0c6b *inst/doc_examples/sampleData2.docx
 1182db953749048f56f1f0c003e026b8 *inst/doc_examples/sampleData2.pdf
@@ -44,7 +44,8 @@ c753a06a9546a98cbe1012868f0e14f8 *inst/doc/Update.html
 74040baba549cd735160d88df9015ec4 *inst/doc_examples/sampleData3.docx
 c65e384b1fa6465a439a78cf1cd3fe23 *inst/doc_examples/sampleData3.pdf
 99106e53385cde24780872eeb0a82ebf *inst/doc_examples/sampleData3.pptx
-d0efc9d6adad0d0ae9af3fbb5faace01 *inst/pptxList/app.R
+b0c1a27a4002493ccebf415fd3c1f94c *inst/pptxList/app.R
+9152d03f77f233799030a048aff3d7b9 *inst/pptxList/rsconnect/shinyapps.io/cardiomoon/pptxList.dcf
 167491caa4ba4a712483029790212f3d *man/HTMLcode2latex.Rd
 4d654103d4db0246a3afb359e96653cb *man/Rcode2df.Rd
 bb6b2d1cc3b8ec97a31af9d2f4f131d5 *man/Rcode2df2.Rd
@@ -54,9 +55,9 @@ c06218c13e462975c01559b85ab5c80b *man/Rcode2docx.Rd
 680c7bd6dc2e138b2db1a35ec41d832b *man/Rcode2pptx.Rd
 b1374efe83f40efa206a71b5e182463a *man/add_2flextables.Rd
 281cbbc40214f1147fd7e73d7e75fa2d *man/add_2ggplots.Rd
-1cf27f48f0c736d2d2d16be76206da93 *man/add_2plots.Rd
+95f8ff1c3631c737e840546641247082 *man/add_2plots.Rd
 ab6bdffa77f66bcf673f2b7f201b0614 *man/add_Rcode.Rd
-fa543159fa79033fc9302b0e717e0743 *man/add_anyplot.Rd
+cf4000a1cc8576e78da7ecbf5dfec276 *man/add_anyplot.Rd
 427c07511d70339f56c5fbdb8554cbc3 *man/add_flextable.Rd
 021b240b03144c33147e3946610a6eea *man/add_ggplot.Rd
 40d39122274e6ed775cd927226467dbe *man/add_img.Rd
@@ -88,7 +89,7 @@ c4e4168447ad8e2e71c3857c0ff10ec8 *man/file2docx.Rd
 e97fc074ae3a293528bd57d95406cc8a *man/file2pdf.Rd
 3056eb64481834f06324bb679eed41b4 *man/file2plotzip.Rd
 a831a6cfd4d2c9bde5d889c6adc98b46 *man/file2pptx.Rd
-57cf8ae2e85430dcd4b12622eec1b32b *man/flextable2ztable.Rd
+472918abe8a70ad5bedd33ddb518f1d1 *man/flextable2ztable.Rd
 c92a852838e1bff533207d731f84b1c0 *man/html2latex.Rd
 d8cf4f4e2169c76fc28492dc9e183e21 *man/insert_argument.Rd
 16f002022bcccce31aa13cdea5fba527 *man/is_ggplot.Rd
@@ -98,7 +99,7 @@ abec6d143a0923ec3e4d86a2ccfca88f *man/myplot2.Rd
 0600f18ad7bb91a84b101e07172b9134 *man/mytable2flextable.Rd
 b73e7d935ff58d9d258cb9b145e1eef3 *man/open_doc.Rd
 1a09300fa0ea246a53de2bf6fc8436f6 *man/plot2docx.Rd
-8a17eee998e1ed5ace088b523e99c4b5 *man/plot2office.Rd
+376cb331eefa1307852096d630029e96 *man/plot2office.Rd
 e8dfbab700fa3dff6c753d56d551641a *man/plot2pptx.Rd
 34cdf3ec990f0df9e528168c1ed5236a *man/plotPDF2.Rd
 c113a56c2c91b342108cf730704bafbe *man/plotPNG2.Rd
