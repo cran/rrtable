@@ -20,101 +20,108 @@ myplot2=function(data,format="PNG",width=7,height=7,units="in",res=300,start=0,p
     }
 
     if(preprocessing!=""){
+        sink("NUL")
         eval(parse(text=preprocessing))
+        unsink("NUL")
     }
+
+    if(shiny::isRunning()){
+        progress <- shiny::Progress$new()
+        on.exit(progress$close())
+        progress$set(message = "Making Plot", value = 0)
+    }
+
     j=1
     if(count>0) for(i in 1:count){
         #eval(parse(text=data$code[i]))
-        if(data$type[i] %in% c("plot","ggplot","PNG","png")){
-            path <- paste("plot_", j+start, ".",format, sep="")
-            filename <- c(filename, path)
-            if(format=="SVG"){
-                temp=paste0("plot",format,"2(function(){",data$code[[i]],"},path,width=width,height=height")
-                if(data$type[i]=="ggplot"){
-                    temp=paste0(temp,",ggplot=TRUE")
-                }
-                temp=paste0(temp,")")
-            } else{
-                temp=paste0("plot",format,"2(function(){",data$code[[i]],"},path,width=width,height=height,units=units,res=res")
-                if(data$type[i]=="ggplot"){
-                    temp=paste0(temp,",ggplot=TRUE")
-                }
-                temp=paste0(temp,")")
-            }
-            eval(parse(text=temp))
-            j=j+1
-        } else if(!(data$type[i] %in% c("text","title","author"))){
-            eval(parse(text=data$code[i]))
+        if(data$type[i] %in% c("rcode","Rcode")) {
+            preprocessing=paste0(preprocessing,"\n",data$code[i])
         }
+
+        if(isRunning()){
+            progress$inc(1/count, detail = paste("Doing part", i,"/",count))
+        }
+
+
+        if(data$type[i] %in% c("plot","ggplot","PNG","png","emf","code")){
+
+            if(!isRunning()) cat("row:",i,",fig:",j,":",data$code[[i]],"\n")
+            path <- paste0("plot_",j,".png")
+            filename <- c(filename, path)
+
+            plotPNG2(data$code[i],path,data$type[i],width=width,height=height,units=units,res=res,preprocessing=preprocessing)
+            j=j+1
+
+            } else if(!(data$type[i] %in% c("text","title","author"))){
+                sink("NUL")
+                eval(parse(text=data$code[i]))
+                unsink("NUL")
+            }
     }
+
     filename
 }
 
-#' Make pdf file with a plot code
-#' @param fun A R code for plot
-#' @param file A path of destination file
-#' @param width A plot width
-#' @param height A plot height
-#' @param units The units in which height and width are given. Can be px (pixels, the default), in (inches), cm or mm.
-#' @param res The nominal resolution in ppi
-#' @param ggplot A logical. Set this argument true if the R code is for ggplot
-#' @importFrom grDevices cairo_pdf dev.off
-plotPDF2=function(fun,file,width=7,height=5,units="in",res=300,ggplot=FALSE){
-
-    if(ggplot){
-        fun()
-        ggsave(file,width=width,device=cairo_pdf,height=height,units=units,dpi=res)
-    }
-    else {
-        cairo_pdf(file,width=width,height=height)
-        #pdf(file,paper="letter")
-        fun()
-        dev.off()
-    }
-
-}
-
-#' Make SVG file with a plot code
-#' @param fun A R code for plot
-#' @param file A path of destination file
-#' @param width A plot width
-#' @param height A plot height
-#' @param ggplot A logical. Set this argument true if the R code is for ggplot
-#' @importFrom grDevices svg
-plotSVG2=function(fun,file,width=7,height=7,ggplot=FALSE){
-
-    if(ggplot) ggsave(file,fun(),width=width,height=height)
-    else {
-        svg(file,width=width,height=height)
-        #pdf(file,paper="letter")
-        fun()
-        dev.off()
-    }
-
-}
-
 #' Make png file with a plot code
-#' @param fun A R code for plot
+#' @param x A R code string for plot
 #' @param file A path of destination file
+#' @param type A character
 #' @param width A plot width
 #' @param height A plot height
 #' @param units The units in which height and width are given. Can be px (pixels, the default), in (inches), cm or mm.
 #' @param res The nominal resolution in ppi
 #' @param ggplot A logical. Set this argument true if the R code is for ggplot
+#' @param preprocessing preprocessing
 #' @importFrom grDevices png
 #' @importFrom ggplot2 ggsave
-plotPNG2=function(fun,file,width=7,height=7,units="in",res=300,ggplot=FALSE){
+#' @importFrom ggpubr ggexport
+plotPNG2=function(x,file,type,width=7,height=7,units="in",res=300,ggplot=FALSE,preprocessing=""){
 
-    if(ggplot) ggsave(file,fun(),width=width,height=height,units=units,dpi=res)
-    else {
+    if(preprocessing!=""){
+        sink("NUL")
+        eval(parse(text=preprocessing))
+        unsink("NUL")
+    }
+    if(is_ggplot(x,preprocessing=preprocessing)) {
+        p<-eval(parse(text=x))
+        ggsave(file,p,width=width,height=height,units=units,dpi=res)
+    } else if(is_ggsurvplot(x,preprocessing=preprocessing)){
         png(file,width=width,height=height,units=units,res=res)
         #pdf(file,paper="letter")
-        fun()
+        print(eval(parse(text=x)))
+        dev.off()
+    } else if(type=="code"){
+        p<-eval(parse(text=x))
+        if("egg" %in% class(p)){
+            ggexport(p,filename=file,width=width*res,height=height*res,res=res)
+        }
+    } else if(type!="emf"){
+        png(file,width=width,height=height,units=units,res=res)
+        #pdf(file,paper="letter")
+        eval(parse(text=x))
+        dev.off()
+    } else{
+        png(file,width=width,height=height,units=units,res=res)
+        #pdf(file,paper="letter")
+        print(eval(parse(text=x)))
         dev.off()
     }
-
 }
 
+
+#' Reports whether plotstring encode a ggsurvplot object
+#' @param x A character encoding a plot
+#' @param preprocessing preprocessing
+#' @export
+is_ggsurvplot=function(x,preprocessing=""){
+    if(preprocessing!=""){
+        sink("NUL")
+        eval(parse(text=preprocessing))
+        unsink("NUL")
+    }
+    p<-eval(parse(text=x))
+    ifelse("ggsurvplot" %in% class(p),TRUE,FALSE)
+}
 
 #' Make zipped plot file with a data.frame
 #' @param data A data.frame
@@ -159,11 +166,11 @@ data2plotzip=function(data,path=".",filename="Plot.zip",format="PNG",width=8,hei
     fs=myplot2(data,format=format,width=width,height=height,units=units,res=res,start=start,preprocessing=preprocessing,
                rawDataName=rawDataName,rawDataFile=rawDataFile)
     zip(zipfile=filename, files=fs)
+    file.remove(fs)
     setwd(owd)
     if(mode) result=file.copy(paste0(path,"/",filename),filename,overwrite=TRUE)
     path=str_replace(path,"//","/")
     paste0(path,"/",filename)
-
 
 }
 

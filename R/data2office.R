@@ -16,6 +16,7 @@
 #' @param showself Logical. Whether or not show R code for the paragraph
 #' @importFrom officer read_docx read_pptx
 #' @importFrom ztable ztable2flextable
+#' @importFrom shiny isRunning Progress
 #' @export
 data2office=function(data,
                      preprocessing="",
@@ -50,6 +51,10 @@ data2office=function(data,
     if(preprocessing!="") {
 
         eval(parse(text=preprocessing))
+    }
+    if(!is.null(attr(data,"preprocessing"))){
+          preprocessing=paste0(preprocessing,"\n",attr(data,"preprocessing"))
+          eval(parse(text=preprocessing))
     }
     data$type=tolower(data$type)
 
@@ -92,7 +97,21 @@ data2office=function(data,
         mydoc <- read_docx()
     }
 
+    if(shiny::isRunning()){
+        progress <- shiny::Progress$new()
+        on.exit(progress$close())
+        progress$set(message = "Making File", value = 0)
+    } else{
+        cat("Making File: 1")
+    }
+
     for(i in 1:nrow(data)){
+
+        if(isRunning()){
+            progress$inc(1/(nrow(data)), detail = paste("Doing part", i+1,"/",nrow(data)+1))
+        } else(
+            cat(i+1)
+        )
 
         if(showself){
             mydoc=add_self(mydoc,data[i,])
@@ -111,7 +130,7 @@ data2office=function(data,
             echo1=echo|getCodeOption(data$option[i])
             eval=getCodeOption(data$option[i],"eval")
             landscape1=landscape|getCodeOption(data$option[i],"landscape")
-            if(data$type[i]=="rcode") {
+            if(data$type[i] %in% c("rcode","Rcode")) {
                 echo1=TRUE
                 eval=TRUE
             }
@@ -127,13 +146,19 @@ data2office=function(data,
                     }
                 }
             }
-            # temp=data$text[i]
+
+            if(class(mydoc)=="rpptx" & data$type[i]=="code"){
+                mydoc<-mydoc %>% add_slide(layout="Title Only")
+                mydoc<-mydoc %>%
+                    ph_with(value=data$title[i],location=ph_location_type(type="title"))
+            } else{
             mydoc=add_text(mydoc,title=data$title[i],text=temp,
                            code=data$code[i],echo=echo1,eval=eval,
                            landscape=landscape1)
+            }
         } else{
             echo1=echo
-            if(data$type[i]=="rcode") echo1=TRUE
+            if(data$type[i] %in% c("rcode","Rcode")) echo1=TRUE
 
             eval=ifelse(data$type[i]=="text",FALSE,TRUE)
             if(data$type[i] %in% c("mytable","data","plot","table","2plots")) eval=FALSE
@@ -145,13 +170,24 @@ data2office=function(data,
                 temp=""
                 tempcode=data$code[i]
             }
+            if(class(mydoc)=="rpptx" & data$type[i]=="code"){
+                mydoc<-mydoc %>% add_slide(layout="Title Only")
+                mydoc<-mydoc %>%
+                    ph_with(value=data$title[i],location=ph_location_type(type="title"))
+            } else{
             mydoc=add_text(mydoc,title=data$title[i],text=temp,
                            code=tempcode,preprocessing=preprocessing,echo=echo1,eval=eval,
                            landscape=landscape1)
+            }
         }
 
 
-        if(data$type[i]=="rcode") eval(parse(text=data$code[i]))
+        if(data$type[i] %in% c("rcode","Rcode")) {
+            sink("NUL")
+            eval(parse(text=data$code[i]))
+            unsink("NUL")
+            preprocessing=paste0(preprocessing,"\n",data$code[i])
+        }
         if(data$type[i]=="data"){
             # ft=df2flextable2(eval(parse(text=data$code[i])),vanilla=vanilla)
 
@@ -178,9 +214,9 @@ data2office=function(data,
             ft=mytable2flextable(res,vanilla=vanilla)
             mydoc=add_flextable(mydoc,ft,code=data$code[i],echo=echo1,landscape = landscape1)
         } else if(data$type[i]=="ggplot"){
-            mydoc=add_ggplot(mydoc,code=data$code[i],preprocessing=preprocessing,top=ifelse(echo1,2,1.5))
+            mydoc=add_anyplot(mydoc,x=data$code[i],preprocessing=preprocessing,top=ifelse(echo1,2,1.5))
         } else if(data$type[i]=="plot"){
-            mydoc<-add_plot(mydoc,data$code[i],preprocessing=preprocessing,top=ifelse(echo1,2,1.5))
+            mydoc<-add_anyplot(mydoc,x=data$code[i],preprocessing=preprocessing,top=ifelse(echo1,2,1.5))
 
         } else if(data$type[i] %in% c("2plots","2ggplots")){
 
@@ -189,11 +225,11 @@ data2office=function(data,
 
         } else if(data$type[i] %in% c("PNG","png")){
 
-            mydoc<-add_img(mydoc,data$code[i],format="png")
+            mydoc<-add_image(mydoc,data$code[i],format="png")
 
         } else if(data$type[i] %in% c("emf","EMF")){
 
-            mydoc<-add_img(mydoc,data$code[i])
+            mydoc<-add_image(mydoc,data$code[i])
 
         } else if(str_detect(data$code[i],"df2flextable")){
 
@@ -201,6 +237,14 @@ data2office=function(data,
             ft=eval(parse(text=tempcode))
             mydoc=add_flextable(mydoc,ft,landscape=landscape1)
 
+        } else if(data$type[i]=="code"){
+            filename1="plot.emf"
+            devEMF::emf(file=filename1,width=8,height=5.5)
+            suppressWarnings(eval(parse(text=data$code[i])))
+            dev.off()
+            mydoc<-ph_with(mydoc,external_img(src="plot.emf",width=8,height=5.5),
+                         location = ph_location(left=1,top=1.5,
+                                                width=8,height=5.5))
         }
 
 
@@ -215,6 +259,7 @@ data2office=function(data,
 
     # mydoc %>% print(target=".")
     setwd(owd)
+    if(!isRunning()) cat("\n")
 
     path=str_replace(path,"//","/")
     paste0(path,"/",target)
@@ -274,4 +319,4 @@ mygrep=function(x,file="*"){
     system(temp)
 }
 
-# data2docx(sampleData3,echo=TRUE)
+

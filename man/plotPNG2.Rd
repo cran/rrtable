@@ -5,19 +5,23 @@
 \title{Make png file with a plot code}
 \usage{
 plotPNG2(
-  fun,
+  x,
   file,
+  type,
   width = 7,
   height = 7,
   units = "in",
   res = 300,
-  ggplot = FALSE
+  ggplot = FALSE,
+  preprocessing = ""
 )
 }
 \arguments{
-\item{fun}{A R code for plot}
+\item{x}{A R code string for plot}
 
 \item{file}{A path of destination file}
+
+\item{type}{A character}
 
 \item{width}{A plot width}
 
@@ -28,6 +32,8 @@ plotPNG2(
 \item{res}{The nominal resolution in ppi}
 
 \item{ggplot}{A logical. Set this argument true if the R code is for ggplot}
+
+\item{preprocessing}{preprocessing}
 }
 \description{
 Make png file with a plot code

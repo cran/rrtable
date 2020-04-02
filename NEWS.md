@@ -1,3 +1,34 @@
+# rrtable version 0.2.1
+=======================
+(14-Mar-2020)
+
+* new function p2character added
+
+# rrtable version 0.2.0
+=======================
+(6-Mar-2020)
+
+* new function data2pptx2, data2docx2, image2pptx added 
+
+* new shiny module chooser, chooser2 added
+
+# rrtable version 0.1.9
+=======================
+(26-Feb-2020)
+
+* bug-fixed
+
+
+
+# rrtable version 0.1.8
+=======================
+(22-Feb-2020)
+
+* bug-fixed
+
+* new function code2office, code2pptx and code2docx added
+
+
 # rrtable version 0.1.7
 =======================
 (4-Feb-2020)
