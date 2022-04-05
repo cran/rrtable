@@ -7,7 +7,6 @@
 add_anyplot(
   doc,
   x = NULL,
-  preprocessing = "",
   plottype = "auto",
   left = 1,
   top = 2,
@@ -19,8 +18,6 @@ add_anyplot(
 \item{doc}{A document object}
 
 \item{x}{An object of class ggplot2 or a string encoding plot or ggplot}
-
-\item{preprocessing}{A string of R code}
 
 \item{plottype}{character  One of c("auto","plot","ggplot","emf")}
 

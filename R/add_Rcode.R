@@ -8,55 +8,47 @@ unsink=function(temp){
 
 #' Make a data.frame with character strings encoding R code
 #' @param result character strings encoding R code
-#' @param preprocessing character strings encoding R code as a preprocessing
 #' @param eval logical. Whether or not evaluate the code
 #' @importFrom utils capture.output
-Rcode2df=function(result,preprocessing,eval=TRUE){
-    if(preprocessing!="") {
-        sink("NUL")
-        eval(parse(text=preprocessing))
-        unsink("NUL")
-    }
-    res=c()
+Rcode2df=function(result,eval=TRUE){
+
+    resres=c()
     codes=unlist(strsplit(result,"\n",fixed=TRUE))
+
     final=c()
     for(i in 1:length(codes)){
         #if(codes[i]=="") next
         # if(length(grep("cat",codes[i]))==1) {
         #     if(grep("cat",codes[i])==1) next
         # }
-        res=c(res,codes[i])
+        resres=c(resres,codes[i])
         if(eval){
             temp=tryCatch(capture.output(eval(parse(text=codes[i]))),error=function(e) "error")
-            if(temp[1]=="error") {
+
+            if(length(temp)==0) {
+                temp1=""
+            } else if(temp[1]=="error") {
                 final="error"
                 break
-            }
-            if(length(temp)==0) temp1=""
-            else  {
+            } else  {
                 temp1=Reduce(pastelf,temp)
                 temp1=paste0(temp1,"\n ")
             }
-            res=c(res,temp1)
+            resres=c(resres,temp1)
         }
 
     }
-    if(is.null(final)) final=data.frame(result=res,stringsAsFactors = FALSE)
+    if(is.null(final)) final=data.frame(result=resres,stringsAsFactors = FALSE)
     final
 
 }
 
 #' Make a data.frame with character strings encoding R code
 #' @param result character strings encoding R code
-#' @param preprocessing character strings encoding R code as a preprocessing
 #' @param eval logical. Whether or not evaluate the code
 #' @importFrom utils capture.output
-Rcode2df2=function(result,preprocessing,eval=TRUE){
-    if(preprocessing!="") {
-        sink("NUL")
-        eval(parse(text=preprocessing))
-        unsink("NUL")
-    }
+Rcode2df2=function(result,eval=TRUE){
+
     res=result
     if(eval){
         temp=capture.output(eval(parse(text=result)))
@@ -150,18 +142,23 @@ df2RcodeTable=function(df,bordercolor="gray",format="pptx",eval=TRUE){
 
 #' Make a flextable object with character strings encoding R code
 #' @param result character strings encoding R code
-#' @param preprocessing character strings encoding R code as a preprocessing
 #' @param format desired format. choices are "pptx" or "docx"
 #' @param eval logical. Whether or not evaluate the code
 #' @export
 #' @examples
 #' Rcode2flextable("str(mtcars)\nsummary(mtcars)",eval=FALSE)
-Rcode2flextable=function(result,preprocessing="",format="pptx",eval=TRUE){
-
-    df=tryCatch(Rcode2df(result,preprocessing=preprocessing,eval=eval),
+Rcode2flextable=function(result,format="pptx",eval=TRUE){
+    # if(!is.null(out)){
+    #     cat("In Rcode2flextable()\n")
+    #     str(out)
+    #     for(i in seq_along(out)){
+    #         assign(names(out)[i],out[[i]])
+    #     }
+    # }
+    df=tryCatch(Rcode2df(result,eval=eval),
                 error=function(e) "error")
     if("character" %in% class(df)) {
-        df<-Rcode2df2(result,preprocessing=preprocessing,eval=eval)
+        df<-Rcode2df2(result,eval=eval)
     }
     df2RcodeTable(df,format=format,eval=eval)
 
@@ -172,7 +169,6 @@ Rcode2flextable=function(result,preprocessing="",format="pptx",eval=TRUE){
 #' Make a R code slide into a document object
 #' @param mydoc A document object
 #' @param code  A character string encoding R codes
-#' @param preprocessing A character string of R code as a preprocessing
 #' @param format desired format. choices are "pptx" or "docx"
 #' @return a document object
 #' @export
@@ -183,9 +179,9 @@ Rcode2flextable=function(result,preprocessing="",format="pptx",eval=TRUE){
 #' code="summary(lm(mpg~hp+wt,data=mtcars))"
 #' read_pptx() %>% add_text(title="Regression Analysis") %>%
 #'    add_Rcode(code)
-add_Rcode=function(mydoc,code,preprocessing="",format="pptx"){
+add_Rcode=function(mydoc,code,format="pptx"){
 
-    ft <- Rcode2flextable(code,preprocessing=preprocessing,format=format)
+    ft <- Rcode2flextable(code,format=format)
     mydoc <- mydoc %>% add_flextable(ft)
     mydoc
 }
@@ -199,12 +195,17 @@ add_Rcode=function(mydoc,code,preprocessing="",format="pptx"){
 #' @param append logical
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' code="summary(lm(mpg~hp+wt,data=mtcars))"
 #' Rcode2office(code=code)
 #' }
 Rcode2office=function(code,preprocessing="",title="",type="pptx",target="Report",append=FALSE){
 
+    if(preprocessing!=""){
+        #sink("NUL")
+        eval(parse(text=preprocessing),envir = global_env())
+        #unsink("NUL")
+    }
     doc<-open_doc(target=target,type=type,append=append)
     target=attr(doc,"name")
     if(title!=""){
@@ -213,7 +214,7 @@ Rcode2office=function(code,preprocessing="",title="",type="pptx",target="Report"
     } else {
         if(type=="pptx") doc <- doc %>% add_slide(layout="Blank")
     }
-    ft <- Rcode2flextable(code,preprocessing=preprocessing,format=type)
+    ft <- Rcode2flextable(code,format=type)
     doc <- doc %>% add_flextable(ft)
     message(paste0("Exported R code as ", target))
     doc %>% print(target=target)
@@ -223,7 +224,7 @@ Rcode2office=function(code,preprocessing="",title="",type="pptx",target="Report"
 #' @param ... further arguments to be passed to plot2office
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' code="summary(lm(mpg~hp+wt,data=mtcars))"
 #' Rcode2pptx(code=code,title="R code to pptx")
 #' }
@@ -235,7 +236,7 @@ Rcode2pptx=function(...){
 #' @param ... further arguments to be passed to plot2office
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' code="summary(lm(mpg~hp+wt,data=mtcars))"
 #' Rcode2docx(code=code,title="R code to Word")
 #' }

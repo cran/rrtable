@@ -13,10 +13,11 @@
 #' @param width desired width of the plot
 #' @param height desired height of the plot
 #' @param aspectr desired aspect ratio of the plot
+#' @param out An object or NULL
 #' @importFrom stringr "%>%"
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' require(ggplot2)
 #' x=c("plot(iris)","ggplot(mtcars,aes(x=hp,y=mpg))+geom_point()")
 #' plot2office(x,title="2 plots",parallel=TRUE)
@@ -25,10 +26,21 @@
 #' }
 plot2office=function(x=NULL,target="Report",append=FALSE,title="",
                      type="pptx",preprocessing="",plottype="auto",echo=FALSE,parallel=FALSE,
-                     left=1,top=1,width=NULL,height=NULL,aspectr=NULL){
+                     left=1,top=1,width=NULL,height=NULL,aspectr=NULL,out=NULL){
+   if(preprocessing!=""){
+      #sink("NUL")
+      eval(parse(text=preprocessing),envir = global_env())
+      #unsink("NUL")
+   }
    if(is.null(x)) {
       message("x should be a ggplot object or a string encoding plot or ggplot")
       return()
+   }
+   if(!is.null(out)){
+      for(i in seq_along(out)){
+         temp=paste0("assign('",names(out)[i],"',out[[i]],envir=global_env())")
+         eval(parse(text=temp))
+      }
    }
    if(is.null(width)){
       if(is.null(height)){
@@ -66,7 +78,7 @@ plot2office=function(x=NULL,target="Report",append=FALSE,title="",
       }
       if(echo & is.character(x)) {
          codes=stringr::str_c(x,collapse="\n")
-         codeft=Rcode2flextable(codes,preprocessing=preprocessing,format="pptx",eval=FALSE)
+         codeft=Rcode2flextable(codes,format="pptx",eval=FALSE)
          doc<-doc %>% ph_with(value=codeft, location = ph_location(left=1,top=pos))
          pos=pos+0.8
       }
@@ -87,12 +99,12 @@ plot2office=function(x=NULL,target="Report",append=FALSE,title="",
 
          if(echo & is.character(code)) {
 
-            codeft=Rcode2flextable(code,preprocessing=preprocessing,format="pptx")
+            codeft=Rcode2flextable(code,format="pptx")
             doc<-doc %>% ph_with(value=codeft, location = ph_location(left=1,top=pos))
             pos=pos+0.5
 
          }
-         doc<- add_anyplot(doc,x=code,preprocessing=preprocessing,plottype=plottype,left=left,top=pos,width=width,height=height)
+         doc<- add_anyplot(doc,x=code,plottype=plottype,left=left,top=pos,width=width,height=height)
       }
 
 
@@ -105,7 +117,7 @@ plot2office=function(x=NULL,target="Report",append=FALSE,title="",
 #' @param ... further arguments to be passed to plot2office
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' require(ggplot2)
 #' x<-ggplot(iris,aes(x=Sepal.Length))+geom_histogram()
 #' plot2pptx(x)
@@ -123,7 +135,7 @@ plot2pptx=function(...){
 #' @param ... further arguments to be passed to plot2office
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' require(ggplot2)
 #' x<-ggplot(iris,aes(x=Sepal.Length))+geom_histogram()
 #' plot2docx(x)
@@ -139,19 +151,14 @@ plot2docx=function(...){
 
 #'Reports whether plotstring encode a ggplot object
 #'@param plotstring A character
-#'@param preprocessing  A string of R code
 #'@importFrom ggplot2 is.ggplot
 #'@export
 #'@examples
 #'require(ggplot2)
 #'is_ggplot("plot(iris)")
 #'is_ggplot("ggplot(iris,aes(x=Sepal.Length))+geom_histogram()")
-is_ggplot=function(plotstring,preprocessing=""){
-   if(preprocessing!="") {
-        sink("NUL")
-        eval(parse(text=preprocessing))
-        unsink("NUL")
-   }
+is_ggplot=function(plotstring){
+
    x<-eval(parse(text=plotstring))
    ggplot2::is.ggplot(x)
 }
@@ -180,21 +187,15 @@ open_doc=function(target="Report", type="pptx",append=FALSE) {
 #' Add a ggplot or a plot to the Microsoft Office Document
 #' @param doc A document object
 #' @param x An object of class ggplot2 or a string encoding plot or ggplot
-#' @param preprocessing A string of R code
 #' @param plottype character  One of c("auto","plot","ggplot","emf")
 #' @param left left margin
 #' @param top top margin
 #' @param width desired width of the plot
 #' @param height desired height of the plot
 #' @export
-add_anyplot=function(doc,x=NULL,preprocessing="",plottype="auto",left=1,top=2,width=8,height=5.5){
+add_anyplot=function(doc,x=NULL,plottype="auto",left=1,top=2,width=8,height=5.5){
 
-   if(preprocessing!="") {
-      sink("NUL")
-      eval(parse(text=preprocessing))
-      unsink("NUL")
-   }
-   if(class(doc)=="rpptx"){
+   if(inherits(doc,"rpptx")){
       if(plottype=="plot"){
          temp=paste0("ph_with(doc,dml(code=",x,"), location = ph_location(left=",left,",top=",top,
                      ",width=",width,",height=",height,"))")
@@ -207,7 +208,7 @@ add_anyplot=function(doc,x=NULL,preprocessing="",plottype="auto",left=1,top=2,wi
          doc <- doc %>%
             ph_with(dml(code = print(x)), location = ph_location(left=left,top=top,width=width,height=height))
       } else{
-         if(is_ggplot(x,preprocessing=preprocessing)){
+         if(is_ggplot(x)){
             gg=eval(parse(text=x))
             doc <- doc %>%
                ph_with(dml(code = print(gg)), location = ph_location(left=left,top=top,width=width,height=height))
@@ -228,6 +229,7 @@ add_anyplot=function(doc,x=NULL,preprocessing="",plottype="auto",left=1,top=2,wi
             } else{
             temp=paste0("ph_with(doc,dml(code=",x,"), location = ph_location(left=",left,",top=",top,
                         ",width=",width,",height=",height,"))")
+
             doc=eval(parse(text=temp))
             }
 

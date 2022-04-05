@@ -12,7 +12,6 @@ myplot2(
   units = "in",
   res = 300,
   start = 0,
-  preprocessing = "",
   rawDataName = NULL,
   rawDataFile = "rawData.RDS"
 )
@@ -31,8 +30,6 @@ myplot2(
 \item{res}{The nominal resolution in ppi}
 
 \item{start}{Plot start number}
-
-\item{preprocessing}{A character string of R code}
 
 \item{rawDataName}{The name of the rawData}
 

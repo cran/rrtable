@@ -1,3 +1,66 @@
+# rrtable version 0.3.0
+=======================
+(17-Nov-2021)
+
+* change in function add_2plots, add_2ggplots to maintain compatibility with officer(>= 0.4.1) 
+
+# rrtable version 0.2.9
+=======================
+(6-Nov-2021)
+
+* add add.rownames argument in function table2office
+
+
+# rrtable version 0.2.8
+=======================
+(3-Nov-2021)
+
+* bug-fixed in function mytable2flextable
+
+# rrtable version 0.2.7
+=======================
+(28-Apr-2021)
+
+* add new type "eval"
+
+* add new function myFlextable as.mynumeric
+
+# rrtable version 0.2.6
+=======================
+(26-Mar-2021)
+
+* New argument out added to data2office, data2HTML, data2plotzip 
+
+# rrtable version 0.2.5.1
+=========================
+(30-Jan-2021)
+
+* add argument align_rownames added to function df2flextable
+
+# rrtable version 0.2.5
+=======================
+(24-Jan-2021)
+
+* add new type "HTML" or "html"
+
+# rrtable version 0.2.4
+=======================
+(23-Apr-2020)
+
+* bug-fixed
+
+# rrtable version 0.2.3
+=======================
+(16-Apr-2020)
+
+* bug-fixed
+
+# rrtable version 0.2.2
+=======================
+(13-Apr-2020)
+
+* bug-fixed
+
 # rrtable version 0.2.1
 =======================
 (14-Mar-2020)

@@ -18,7 +18,8 @@ plot2office(
   top = 1,
   width = NULL,
   height = NULL,
-  aspectr = NULL
+  aspectr = NULL,
+  out = NULL
 )
 }
 \arguments{
@@ -49,12 +50,14 @@ plot2office(
 \item{height}{desired height of the plot}
 
 \item{aspectr}{desired aspect ratio of the plot}
+
+\item{out}{An object or NULL}
 }
 \description{
 Save plot/ggplot to Microsoft Powerpoint format
 }
 \examples{
-\donttest{
+\dontrun{
 require(ggplot2)
 x=c("plot(iris)","ggplot(mtcars,aes(x=hp,y=mpg))+geom_point()")
 plot2office(x,title="2 plots",parallel=TRUE)

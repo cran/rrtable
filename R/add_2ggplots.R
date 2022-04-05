@@ -23,7 +23,7 @@ add_title=function(x,title="",size=20,color=NULL,before=TRUE,after=TRUE){
 #' @param data a data.frame
 #' @export
 add_self=function(mydoc,data){
-    if(class(mydoc)=="rpptx"){
+    if(inherits(mydoc,"rpptx")){
         mydoc <- mydoc %>% add_slide("Blank",master="Office Theme")
         mydoc<-mydoc %>% ph_with(value=df2flextable2(data), location = ph_location(left=1,top=2))
     } else{
@@ -39,7 +39,7 @@ add_self=function(mydoc,data){
 #' @param mydoc A document object
 #' @param text text string to be added
 #' @importFrom stringr str_extract str_remove
-#' @importFrom officer ph_add_text
+#' @importFrom officer hyperlink_ftext body_add_fpar fp_text_lite body_add_par
 add_text2hyperlink=function(mydoc,text){
 
 
@@ -56,20 +56,31 @@ add_text2hyperlink=function(mydoc,text){
         temp=str_extract_all(text,".*?\\[.*?\\]\\(.*?\\)")
         result=lapply(temp,devide)
 
-        for(i in 1:length(result[[1]]$text)){
-            if(i==1) {
-                mydoc=ph_with(mydoc,value=result[[1]]$text[i],location = ph_location_type(type="body"))
-            } else{
-                mydoc=ph_add_text(mydoc,type="body",str=result[[1]]$text[i])
-            }
-
-           mydoc=ph_add_text(mydoc,type="body",str=result[[1]]$str[i],href=result[[1]]$ref[i])
-
+        temp=list()
+        no=length(result[[1]]$text)
+        ft=fp_text_lite(color="blue",underlined=TRUE)
+        for(i in 1:no){
+            temp[[(i-1)*2+1]]=result[[1]]$text[i]
+            temp[[(i-1)*2+2]]=hyperlink_ftext(
+                href=result[[1]]$ref[i],
+                text=result[[1]]$str[i],
+                prop=ft
+            )
+        }
+        temp
+        par<-do.call(fpar,temp)
+        if(inherits(mydoc,"rpptx")){
+           mydoc=ph_with(mydoc,par,location=ph_location_type(type="body"))
+        } else{
+            mydoc=body_add_fpar(mydoc,par)
         }
 
-
     } else{
+        if(inherits(mydoc,"rpptx")){
         mydoc=ph_with(mydoc, text, location = ph_location_type(type="body"))
+        } else{
+            mydoc=body_add_par(mydoc,value=text)
+        }
     }
     mydoc
 }
@@ -79,15 +90,21 @@ add_text2hyperlink=function(mydoc,text){
 #' @param title An character string as a plot title
 #' @param text text string to be added
 #' @param code An R code string
-#' @param preprocessing preprocessing
 #' @param echo logical Whether or not show R code
 #' @param eval logical whether or not evaluate the R code
 #' @param landscape Logical. Whether or not make a landscape section.
 #' @param style text style
 #' @importFrom officer body_end_section_portrait
 #' @export
-add_text=function(mydoc,title="",text="",code="",preprocessing="",echo=FALSE,eval=FALSE,style="Normal",landscape=FALSE){
-    if(class(mydoc)=="rpptx"){
+add_text=function(mydoc,title="",text="",code="",echo=FALSE,eval=FALSE,style="Normal",landscape=FALSE){
+    # if(!is.null(out)){
+    #     cat("In add_text()\n")
+    #     str(out)
+    #     for(i in seq_along(out)){
+    #         assign(names(out)[i],out[[i]])
+    #     }
+    # }
+    if(inherits(mydoc,"rpptx")){
         layout="Title and Content"
         if((title=="")&(text=="")) layout="Blank"
         else if(text=="") layout="Title Only"
@@ -108,7 +125,7 @@ add_text=function(mydoc,title="",text="",code="",preprocessing="",echo=FALSE,eva
         pos=1.5
         if(echo) {
             if(code!=""){
-            codeft=Rcode2flextable(code,preprocessing=preprocessing,eval=eval,format="pptx")
+            codeft=Rcode2flextable(code,eval=eval,format="pptx")
             mydoc<-mydoc %>% ph_with(value=codeft, location = ph_location(left=1,top=pos))
             pos=2
             }
@@ -120,7 +137,8 @@ add_text=function(mydoc,title="",text="",code="",preprocessing="",echo=FALSE,eva
             mydoc <- mydoc %>% body_end_section_portrait()
         }
         mydoc <- mydoc %>% add_title(title)
-        if(text!="") mydoc<-mydoc %>% body_add_par(value=text,style=style)
+        #if(text!="") mydoc<-mydoc %>% body_add_par(value=text,style=style)
+        if(text!="") mydoc<-mydoc %>% add_text2hyperlink(text=text)
         if(echo) {
             if(code!=""){
             codeft=Rcode2flextable(code,eval=eval,format="docx")
@@ -138,7 +156,6 @@ add_text=function(mydoc,title="",text="",code="",preprocessing="",echo=FALSE,eva
 #' @param mydoc A document object
 #' @param plot1 An R code encoding the first ggplot
 #' @param plot2 An R code encoding the second ggplot
-#' @param preprocessing preprocessing
 #' @param width plot width in inches
 #' @param height plot height in inches
 #' @param top top plot position in inches
@@ -146,7 +163,7 @@ add_text=function(mydoc,title="",text="",code="",preprocessing="",echo=FALSE,eva
 #' @importFrom officer body_end_section_columns body_end_section_continuous
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' require(ggplot2)
 #' require(magrittr)
 #' require(officer)
@@ -156,16 +173,12 @@ add_text=function(mydoc,title="",text="",code="",preprocessing="",echo=FALSE,eva
 #' read_pptx() %>% add_text(title="Two ggplots") %>% add_2ggplots(plot1=plot1,plot2=plot2)
 #' read_docx() %>% add_text(title="Two ggplots") %>% add_2ggplots(plot1=plot1,plot2=plot2)
 #' }
-add_2ggplots=function(mydoc,plot1,plot2,preprocessing="",width=3,height=2.5,top=2){
-
-    if(preprocessing!="") {
-        eval(parse(text=preprocessing))
-    }
+add_2ggplots=function(mydoc,plot1,plot2,width=3,height=2.5,top=2){
 
     gg1<-eval(parse(text=plot1))
     gg2<-eval(parse(text=plot2))
 
-    if(class(mydoc)=="rpptx"){
+    if(inherits(mydoc,"rpptx")){
 
         mydoc<- mydoc %>%
             ph_with(dml(code = print(gg1)), location = ph_location(left=0.5,top=top,width=4.5,height=5) ) %>%
@@ -193,10 +206,10 @@ add_2ggplots=function(mydoc,plot1,plot2,preprocessing="",width=3,height=2.5,top=
 #' @param width plot width in inches
 #' @param code R code string
 #' @return a document object
-#' @importFrom officer slip_in_column_break body_add_gg
+#' @importFrom officer body_add_gg
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' require(rrtable)
 #' require(officer)
 #' require(magrittr)
@@ -214,7 +227,7 @@ add_2flextables=function(mydoc,ft1,ft2,echo=FALSE,width=3,code=""){
 
     pos=1.5
     if(echo & (code!="")) pos=2
-    if(class(mydoc)=="rpptx"){
+    if(inherits(mydoc,"rpptx")){
 
         mydoc<-mydoc %>%
             ph_with(value=ft1, location = ph_location(left=0.5,top=pos)) %>%
@@ -228,7 +241,6 @@ add_2flextables=function(mydoc,ft1,ft2,echo=FALSE,width=3,code=""){
         mydoc <-mydoc %>%
             body_add_flextable(value=ft1) %>%
             body_add_flextable(value=ft2) %>%
-            slip_in_column_break() %>%
             body_end_section_columns()
         # if(landscape) mydoc <- body_end_section_landscape(mydoc)
     }

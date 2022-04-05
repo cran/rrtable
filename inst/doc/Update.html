@@ -14,23 +14,53 @@
 
 <title>For Easy Reproducible Research</title>
 
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
 
 
-<style type="text/css">code{white-space: pre;}</style>
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
 <style type="text/css" data-origin="pandoc">
-code.sourceCode > span { display: inline-block; line-height: 1.25; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-code.sourceCode > span:empty { height: 1.2em; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -50,7 +80,7 @@ pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-le
 div.sourceCode
   {   }
 @media screen {
-code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -104,6 +134,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warni
   }
 })();
 </script>
+
 
 
 
@@ -303,59 +334,74 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a><span class="kw">require</span>(rrtable)</span>
-<span id="cb1-2"><a href="#cb1-2"></a><span class="kw">require</span>(ggplot2)</span></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(rrtable)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">require</span>(ggplot2)</span></code></pre></div>
 <div id="introduction" class="section level3">
 <h3>Introduction</h3>
-<p>If you are a data scientist or researcher, you will certainly be interested in reproducible research. With R package <code>rrtable</code>, you can make a MS Powerpoint file easily with a R code.</p>
+<p>If you are a data scientist or researcher, you will certainly be
+interested in reproducible research. With R package
+<code>rrtable</code>, you can make a MS Powerpoint file easily with a R
+code.</p>
 </div>
 <div id="make-the-powerpoint-file-with-r-plotggplot" class="section level2">
 <h2>Make The Powerpoint File with R plot/ggplot</h2>
-<p>You can make the Powerpoint file easily with R plot with or without R code.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>x=<span class="kw">ggplot</span>(mtcars,<span class="kw">aes</span>(<span class="dt">x=</span>wt,<span class="dt">y=</span>mpg))<span class="op">+</span><span class="kw">geom_point</span>()</span></code></pre></div>
+<p>You can make the Powerpoint file easily with R plot with or without R
+code.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>x<span class="ot">=</span><span class="fu">ggplot</span>(mtcars,<span class="fu">aes</span>(<span class="at">x=</span>wt,<span class="at">y=</span>mpg))<span class="sc">+</span><span class="fu">geom_point</span>()</span></code></pre></div>
 <p>You can make a Powerpoint file with this ggplot object.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a><span class="kw">plot2pptx</span>(x)</span></code></pre></div>
-<p>If you want to show R code as well as plot, you can use R code string and set the echo argument TRUE.</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>x=<span class="st">&quot;ggplot(mtcars,aes(x=wt,y=mpg))+geom_point()&quot;</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a><span class="kw">plot2pptx</span>(x,<span class="dt">echo=</span><span class="ot">TRUE</span>,<span class="dt">title=</span><span class="st">&quot;A ggplot&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot2pptx</span>(x)</span></code></pre></div>
+<p>If you want to show R code as well as plot, you can use R code string
+and set the echo argument TRUE.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>x<span class="ot">=</span><span class="st">&quot;ggplot(mtcars,aes(x=wt,y=mpg))+geom_point()&quot;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot2pptx</span>(x,<span class="at">echo=</span><span class="cn">TRUE</span>,<span class="at">title=</span><span class="st">&quot;A ggplot&quot;</span>)</span></code></pre></div>
 <p>By default, “Report.pptx” file will be generated</p>
-<p>You can append a plot to existing Powerpoint file with a string of R code.</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">plot2pptx</span>(<span class="st">&quot;plot(iris)&quot;</span>,<span class="dt">echo=</span><span class="ot">TRUE</span>,<span class="dt">append=</span><span class="ot">TRUE</span>)</span></code></pre></div>
-<p>You can add R code on the slide by setting the argument <code>echo</code> TRUE.</p>
+<p>You can append a plot to existing Powerpoint file with a string of R
+code.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot2pptx</span>(<span class="st">&quot;plot(iris)&quot;</span>,<span class="at">echo=</span><span class="cn">TRUE</span>,<span class="at">append=</span><span class="cn">TRUE</span>)</span></code></pre></div>
+<p>You can add R code on the slide by setting the argument
+<code>echo</code> TRUE.</p>
 </div>
 <div id="add-a-data.frame-to-the-powerpoint-file" class="section level2">
 <h2>Add a data.frame to the Powerpoint file</h2>
 <p>You can add a data.frame to the Powerpoint file.</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">table2pptx</span>(<span class="st">&quot;head(iris)&quot;</span>, <span class="dt">echo=</span><span class="ot">TRUE</span>,<span class="dt">append=</span><span class="ot">TRUE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table2pptx</span>(<span class="st">&quot;head(iris)&quot;</span>, <span class="at">echo=</span><span class="cn">TRUE</span>,<span class="at">append=</span><span class="cn">TRUE</span>)</span></code></pre></div>
 </div>
 <div id="add-the-result-of-r-code-to-the-powerpoint-file" class="section level2">
 <h2>Add the result of R code to the Powerpoint file</h2>
-<p>You can add the R code and the result of R code to the Powerpoint file</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>fit=<span class="kw">lm</span>(mpg<span class="op">~</span><span class="st"> </span>wt<span class="op">*</span>hp, <span class="dt">data=</span>mtcars)</span>
-<span id="cb7-2"><a href="#cb7-2"></a><span class="kw">Rcode2pptx</span>(<span class="st">&quot;summary(fit)&quot;</span>,<span class="dt">append=</span><span class="ot">TRUE</span>)</span></code></pre></div>
+<p>You can add the R code and the result of R code to the Powerpoint
+file</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fit<span class="ot">=</span><span class="fu">lm</span>(mpg<span class="sc">~</span> wt<span class="sc">*</span>hp, <span class="at">data=</span>mtcars)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">Rcode2pptx</span>(<span class="st">&quot;summary(fit)&quot;</span>,<span class="at">append=</span><span class="cn">TRUE</span>)</span></code></pre></div>
 </div>
 <div id="add-the-result-of-statistical-analysis-to-the-powerpoint-file" class="section level2">
 <h2>Add the result of statistical analysis to the Powerpoint file</h2>
-<p>You can add the result of statistical analysis to the Powerpoint file</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>fit2=<span class="kw">aov</span>(yield <span class="op">~</span><span class="st"> </span>block <span class="op">+</span><span class="st"> </span>N <span class="op">*</span><span class="st"> </span>P <span class="op">+</span><span class="st"> </span>K, <span class="dt">data =</span> npk)</span>
-<span id="cb8-2"><a href="#cb8-2"></a><span class="kw">table2pptx</span>(fit2,<span class="dt">title=</span><span class="st">&quot;ANOVA result&quot;</span>,<span class="dt">append=</span><span class="ot">TRUE</span>,<span class="dt">vanilla=</span><span class="ot">TRUE</span>)</span></code></pre></div>
+<p>You can add the result of statistical analysis to the Powerpoint
+file</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>fit2<span class="ot">=</span><span class="fu">aov</span>(yield <span class="sc">~</span> block <span class="sc">+</span> N <span class="sc">*</span> P <span class="sc">+</span> K, <span class="at">data =</span> npk)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">table2pptx</span>(fit2,<span class="at">title=</span><span class="st">&quot;ANOVA result&quot;</span>,<span class="at">append=</span><span class="cn">TRUE</span>,<span class="at">vanilla=</span><span class="cn">TRUE</span>)</span></code></pre></div>
 <p>Or</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">table2pptx</span>(<span class="st">&quot;aov(yield ~ block + N * P + K, data = npk)&quot;</span>,</span>
-<span id="cb9-2"><a href="#cb9-2"></a>           <span class="dt">title=</span><span class="st">&quot;ANOVA result&quot;</span>,<span class="dt">echo=</span><span class="ot">TRUE</span>,<span class="dt">append=</span><span class="ot">TRUE</span>,<span class="dt">vanilla=</span><span class="ot">TRUE</span>)</span></code></pre></div>
-<p>You can use class of “matrix”,“lm”,“fitdistr”,“nls”,“aov”,“anova”,“glm”,“coxph”,“prcomp” or “summary.prcomp” object using table2pptx() file.</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table2pptx</span>(<span class="st">&quot;aov(yield ~ block + N * P + K, data = npk)&quot;</span>,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>           <span class="at">title=</span><span class="st">&quot;ANOVA result&quot;</span>,<span class="at">echo=</span><span class="cn">TRUE</span>,<span class="at">append=</span><span class="cn">TRUE</span>,<span class="at">vanilla=</span><span class="cn">TRUE</span>)</span></code></pre></div>
+<p>You can use class of
+“matrix”,“lm”,“fitdistr”,“nls”,“aov”,“anova”,“glm”,“coxph”,“prcomp” or
+“summary.prcomp” object using table2pptx() file.</p>
 </div>
 <div id="adding-the-2-plotsggplots-on-a-slide" class="section level2">
 <h2>Adding the 2 plots/ggplots on a slide</h2>
 <p>You can add 2 plots on a slide side by side.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>x=<span class="kw">c</span>(<span class="st">&quot;plot(iris)&quot;</span>,<span class="st">&quot;ggplot(mtcars,aes(x=hp,y=mpg))+geom_point()&quot;</span>)</span>
-<span id="cb10-2"><a href="#cb10-2"></a><span class="kw">plot2office</span>(x,<span class="dt">title=</span><span class="st">&quot;2 plots&quot;</span>,<span class="dt">parallel=</span><span class="ot">TRUE</span>,<span class="dt">echo=</span><span class="ot">TRUE</span>,<span class="dt">append=</span><span class="ot">TRUE</span>)</span></code></pre></div>
-<p>You can download sample Powerpoint file: <a href="https://github.com/cardiomoon/rrtable/raw/master/inst/doc_examples/Report.pptx">Report.pptx</a> - view with <a href="https://view.officeapps.live.com/op/view.aspx?src=https://github.com/cardiomoon/rrtable/raw/master/inst/doc_examples/Report.pptx">office web viewer</a></p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>x<span class="ot">=</span><span class="fu">c</span>(<span class="st">&quot;plot(iris)&quot;</span>,<span class="st">&quot;ggplot(mtcars,aes(x=hp,y=mpg))+geom_point()&quot;</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot2office</span>(x,<span class="at">title=</span><span class="st">&quot;2 plots&quot;</span>,<span class="at">parallel=</span><span class="cn">TRUE</span>,<span class="at">echo=</span><span class="cn">TRUE</span>,<span class="at">append=</span><span class="cn">TRUE</span>)</span></code></pre></div>
+<p>You can download sample Powerpoint file: <a href="https://github.com/cardiomoon/rrtable/raw/master/inst/doc_examples/Report.pptx">Report.pptx</a>
+- view with <a href="https://view.officeapps.live.com/op/view.aspx?src=https://github.com/cardiomoon/rrtable/raw/master/inst/doc_examples/Report.pptx">office
+web viewer</a></p>
 </div>
 <div id="shiny-app-using-package-rrtable" class="section level2">
 <h2>Shiny app using package rrtable</h2>
-<p>You can see the shiny app using package rrtable with the following R command.</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>shiny<span class="op">::</span><span class="kw">runApp</span>(<span class="kw">system.file</span>(<span class="st">&#39;pptxList&#39;</span>,<span class="dt">package=</span><span class="st">&#39;rrtable&#39;</span>))  </span></code></pre></div>
-<p>Press the <code>load SampleData</code> button of the shiny app and enjoy!</p>
+<p>You can see the shiny app using package rrtable with the following R
+command.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>shiny<span class="sc">::</span><span class="fu">runApp</span>(<span class="fu">system.file</span>(<span class="st">&#39;pptxList&#39;</span>,<span class="at">package=</span><span class="st">&#39;rrtable&#39;</span>))  </span></code></pre></div>
+<p>Press the <code>load SampleData</code> button of the shiny app and
+enjoy!</p>
 </div>
 
 

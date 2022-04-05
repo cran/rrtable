@@ -52,7 +52,7 @@ if(format=="emf"){
       print(p)
     }
     dev.off()
-    if(class(mydoc)=="rpptx"){
+    if(inherits(mydoc,"rpptx")){
 
             mydoc<-ph_with(mydoc,value = external_img(src=filename,width=width,height=height),
               use_loc_size = TRUE, location = ph_location(left=left,top=top,width=width,height=height))
@@ -80,7 +80,7 @@ if(format=="emf"){
 #' @importFrom stringr "%>%"
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' require(ggplot2)
 #' image2pptx("ggplot(data=iris,aes(x=Sepal.Length))+geom_density()")
 #' }
@@ -89,6 +89,11 @@ image2office=function(x,target="Report",append=FALSE,title="",
                   left=1,top=1,width=8,height=5.5){
 
   # read_pptx() %>%
+  if(preprocessing!=""){
+    #sink("NUL")
+    eval(parse(text=preprocessing),envir = global_env())
+    #unsink("NUL")
+  }
   doc<-open_doc(target=target,type=type,append=append)
   target=attr(doc,"name")
   # add_slide(layout = "Title and Content", master = "Office Theme") %>%
@@ -102,7 +107,7 @@ image2office=function(x,target="Report",append=FALSE,title="",
   }
 
   doc <- doc %>%
-    add_image(x,preprocessing=preprocessing,left = left, top = top, width = width, height = height)
+    add_image(x,left = left, top = top, width = width, height = height)
   # ph_with(external_img(src = filename, width = 8, height = 5.5),
   #         location = ph_location(left = 1, top = 1, width = 8, height = 5.5) ) %>%
   message(paste0("Exported plot as ", target))
@@ -114,7 +119,7 @@ image2office=function(x,target="Report",append=FALSE,title="",
 #' @param ... further arguments to be passed to image2office
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' require(ggplot2)
 #' x<-ggplot(iris,aes(x=Sepal.Length))+geom_histogram()
 #' image2pptx(x)
@@ -131,7 +136,7 @@ image2pptx=function(...){
 #' @param ... further arguments to be passed to image2office
 #' @export
 #' @examples
-#' \donttest{
+#' \dontrun{
 #' require(ggplot2)
 #' x<-ggplot(iris,aes(x=Sepal.Length))+geom_histogram()
 #' image2docx(x)

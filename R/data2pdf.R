@@ -14,7 +14,7 @@ mycat=function(...,file="report2.Rmd"){
 #' library(moonBook)
 #' library(ztable)
 #' library(ggplot2)
-#' \donttest{
+#' \dontrun{
 #' data2pdf(sampleData2)
 #' }
 data2pdf=function(...){
@@ -39,7 +39,7 @@ data2docx2=function(...){
     data2HTML(...,type="docx")
 }
 
-#' Make a powerpoint file with a data.frame
+#' Make a Powerpoint file with a data.frame
 #' @param ... further arguments to be passed to data2HTML
 #' @importFrom rmarkdown render
 #' @export

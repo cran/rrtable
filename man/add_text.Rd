@@ -9,7 +9,6 @@ add_text(
   title = "",
   text = "",
   code = "",
-  preprocessing = "",
   echo = FALSE,
   eval = FALSE,
   style = "Normal",
@@ -24,8 +23,6 @@ add_text(
 \item{text}{text string to be added}
 
 \item{code}{An R code string}
-
-\item{preprocessing}{preprocessing}
 
 \item{echo}{logical Whether or not show R code}
 
