@@ -10,8 +10,8 @@ require(ggplot2)
 options(ztable.type='HTML')
 
 ## ----echo=TRUE, eval=FALSE----------------------------------------------------
-#  if(!require(devtools)){ install.packages("devtools") }
-#  devtools::install_github("cardiomoon/rrtable")
+# if(!require(devtools)){ install.packages("devtools") }
+# devtools::install_github("cardiomoon/rrtable")
 
 ## ----echo=TRUE----------------------------------------------------------------
 require(rrtable) 
@@ -44,23 +44,23 @@ hist(rnorm(1000))
 plot(1:10) 
 
 ## ----echo=TRUE, eval=FALSE----------------------------------------------------
-#  data2HTML(sampleData3)
+# data2HTML(sampleData3)
 
 ## ----echo=TRUE,eval=FALSE-----------------------------------------------------
-#  data2docx(sampleData3)
+# data2docx(sampleData3)
 
 ## ----echo=TRUE,eval=FALSE-----------------------------------------------------
-#  data2docx(sampleData2)
+# data2docx(sampleData2)
 
 ## ----echo=TRUE,eval=FALSE-----------------------------------------------------
-#  data2pptx(sampleData3)
+# data2pptx(sampleData3)
 
 ## ----echo=TRUE,eval=FALSE-----------------------------------------------------
-#  data2pptx(sampleData2)
+# data2pptx(sampleData2)
 
 ## ----echo=TRUE,eval=FALSE-----------------------------------------------------
-#  data2pdf(sampleData3)
+# data2pdf(sampleData3)
 
 ## ----echo=TRUE,eval=FALSE-----------------------------------------------------
-#  data2pdf(sampleData2)
+# data2pdf(sampleData2)
 

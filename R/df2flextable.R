@@ -72,7 +72,7 @@ p2character=function(x,digits=3){
 #' @param NA2space A logical. If true, convert NA value to space
 #' @param pcol An integer indicating p value. If specified, convert value less than 0.01 to "< 0.001" in given column.
 #' @param ... further arguments to be passed to flextable
-#' @importFrom flextable flextable regulartable set_formatter_type set_header_df theme_zebra vline vline_left align autofit padding hline hline_top hline_bottom border_remove font fontsize color
+#' @importFrom flextable flextable set_formatter_type set_header_df theme_zebra vline vline_left align autofit padding hline hline_top hline_bottom border_remove font fontsize color
 #' @importFrom officer fp_border
 #' @importFrom magrittr "%>%"
 #' @export
@@ -143,7 +143,7 @@ df2flextable=function(df,vanilla=FALSE,fontname=NULL,fontsize=12,
      # ft <- regulartable(df,...) %>% set_formatter_type(fmt_double=fmt_double)
      # ft <- flextable(df) %>% set_formatter_type(fmt_double=fmt_double)
      df
-     ft<-tryCatch(regulartable(df),error=function(e) "error")
+     ft<-tryCatch(flextable(df),error=function(e) "error")
      if("character" %in% class(ft)) {
          ft=flextable(df)
      }
